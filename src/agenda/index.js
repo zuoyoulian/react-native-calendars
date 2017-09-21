@@ -73,7 +73,9 @@ export default class AgendaView extends Component {
     // Hide knob button. Default = false
     hideKnob: PropTypes.bool,
     // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
-    monthFormat: PropTypes.string
+    monthFormat: PropTypes.string,
+    // 下拉刷新
+    onRefresh: PropTypes.func,
   };
 
   constructor(props) {
@@ -155,16 +157,31 @@ export default class AgendaView extends Component {
   onSnapAfterDrag(e) {
     // on Android onTouchEnd is not called if dragging was started
     this.onTouchEnd();
-    const currentY = e.nativeEvent.contentOffset.y;
+    const maxY = this.initialScrollPadPosition();
+    let currentY = e.nativeEvent.contentOffset.y;
+    if(this.state.calendarScrollable){
+      currentY += maxY
+    }
     this.knobTracker.add(currentY);
     const projectedY = currentY + this.knobTracker.estimateSpeed() * 250/*ms*/;
-    const maxY = this.initialScrollPadPosition();
     const snapY = (projectedY > maxY / 2) ? maxY : 0;
     this.setScrollPadPosition(snapY, true);
     if (snapY === 0) {
       this.enableCalendarScrolling();
     }else{
-      this._chooseDayFromCalendar(this.state.selectedDay)
+      const day = parseDate(this.state.selectedDay);
+      this.setState({
+        calendarScrollable: false,
+        selectedDay: day.clone(),
+        topDay: day.clone()
+      });
+      this.calendar.scrollToDay(day, this.calendarOffset(), true);
+      if (this.props.loadItemsForMonth) {
+        this.props.loadItemsForMonth(xdateToData(day));
+      }
+      if (this.props.onDayPress) {
+        this.props.onDayPress(xdateToData(day));
+      }
     }
   }
 
@@ -205,6 +222,13 @@ export default class AgendaView extends Component {
       this.setState({
         firstResevationLoad: false
       });
+      if(props.selected!== this.props.selected){
+        this.setState({
+          selectedDay: parseDate(this.props.selected) || XDate(true),
+          topDay: parseDate(this.props.selected) || XDate(true),
+        });
+        this._chooseDayFromCalendar(parseDate(this.props.selected)|| XDate(true))
+      }
     } else {
       this.loadReservations(props);
     }
@@ -255,6 +279,8 @@ export default class AgendaView extends Component {
       <ReservationsList
         rowHasChanged={this.props.rowHasChanged}
         renderItem={this.props.renderItem}
+        onRefresh={this.props.onRefresh}
+        refreshing={this.props.refreshing}
         renderDay={this.props.renderDay}
         renderEmptyDate={this.props.renderEmptyDate}
         reservations={this.props.items}

@@ -32,6 +32,10 @@ class ReactComp extends Component {
 
     selectedDay: PropTypes.instanceOf(XDate),
     topDay: PropTypes.instanceOf(XDate),
+    // 下拉刷新
+    onRefresh: PropTypes.func,
+    // 刷新状态
+    refreshing: PropTypes.bool,
   };
 
   constructor(props) {
@@ -188,6 +192,8 @@ class ReactComp extends Component {
         renderItem={this.renderRow.bind(this)}
         data={this.state.reservations}
         onScroll={this.onScroll.bind(this)}
+        onRefresh={this.props.onRefresh}
+        refreshing={this.props.refreshing}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={200}
         onMoveShouldSetResponderCapture={() => {this.onListTouch(); return false;}}
