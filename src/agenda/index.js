@@ -5,6 +5,7 @@ import {
   Dimensions,
   Animated,
   ViewPropTypes,
+  Platform
 } from 'react-native';
 import PropTypes from 'prop-types';
 import XDate from 'xdate';
@@ -159,9 +160,6 @@ export default class AgendaView extends Component {
     this.onTouchEnd();
     const maxY = this.initialScrollPadPosition();
     let currentY = e.nativeEvent.contentOffset.y;
-    // if(this.state.calendarScrollable){
-    //   currentY += maxY
-    // }
     this.knobTracker.add(currentY);
     const projectedY = currentY + this.knobTracker.estimateSpeed() * 250/*ms*/;
     const snapY = (projectedY > maxY / 2) ? maxY : 0;
@@ -174,17 +172,10 @@ export default class AgendaView extends Component {
         this.setState({
           calendarScrollable: false,
           selectedDay: day.clone(),
-          topDay: day.clone()
         });
         this.calendar.scrollToDay(day, this.calendarOffset(), true);
-        if (this.props.loadItemsForMonth) {
-          this.props.loadItemsForMonth(xdateToData(day));
-        }
-        if (this.props.onDayPress) {
-          this.props.onDayPress(xdateToData(day));
-        }
 
-      },200)
+      },Platform.OS === 'ios' ? 0 : 200)
     }
   }
 
