@@ -218,10 +218,10 @@ export default class AgendaView extends Component {
       });
       if(props.selected!== this.props.selected){
         this.setState({
-          selectedDay: parseDate(this.props.selected) || XDate(true),
-          topDay: parseDate(this.props.selected) || XDate(true),
+          selectedDay: parseDate(props.selected) || XDate(true),
+          topDay: parseDate(props.selected) || XDate(true),
         });
-        this._chooseDayFromCalendar(parseDate(this.props.selected)|| XDate(true))
+        this._chooseDayFromCalendar(parseDate(props.selected)|| XDate(true))
       }
     } else {
       this.loadReservations(props);
