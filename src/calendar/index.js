@@ -10,7 +10,7 @@ import dateutils from '../dateutils';
 import {xdateToData, parseDate} from '../interface';
 import styleConstructor from './style';
 import Day from './day/basic';
-import UnitDay from './day/interactive';
+import UnitDay from './day/period';
 import MultiDotDay from './day/multi-dot';
 import CalendarHeader from './header';
 import shouldComponentUpdate from './updater';
@@ -39,7 +39,7 @@ class Calendar extends Component {
     // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
     firstDay: PropTypes.number,
 
-    // Date marking style [simple/interactive]. Default = 'simple'
+    // Date marking style [simple/period]. Default = 'simple'
     markingType: PropTypes.string,
 
     // Hide month navigation arrows. Default = false
@@ -56,6 +56,8 @@ class Calendar extends Component {
     onVisibleMonthsChange: PropTypes.func,
     // Replace default arrows with custom ones (direction can be 'left' or 'right')
     renderArrow: PropTypes.func,
+    // Provide custom day rendering component
+    dayComponent: PropTypes.any,
     // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
     monthFormat: PropTypes.string,
     // Disables changing month when click on days of other months (when hideExtraDays is false). Default = false
@@ -113,7 +115,8 @@ class Calendar extends Component {
     });
   }
 
-  pressDay(day) {
+  pressDay(date) {
+    const day = parseDate(date);
     const minDate = parseDate(this.props.minDate);
     const maxDate = parseDate(this.props.maxDate);
     if (!(minDate && !dateutils.isGTE(day, minDate)) && !(maxDate && !dateutils.isLTE(day, maxDate))) {
@@ -146,23 +149,24 @@ class Calendar extends Component {
     }
     let dayComp;
     if (!dateutils.sameMonth(day, this.state.currentMonth) && this.props.hideExtraDays) {
-      if (this.props.markingType === 'interactive') {
+      if (this.props.markingType === 'period') {
         dayComp = (<View key={id} style={{flex: 1}}/>);
       } else {
         dayComp = (<View key={id} style={{width: 32}}/>);
       }
     } else {
       const DayComp = this.getDayComponent();
+      const date = day.getDate();
       dayComp = (
         <DayComp
           key={id}
           state={state}
           theme={this.props.theme}
           onPress={this.pressDay}
-          day={day}
-          marked={this.getDateMarking(day)}
+          date={xdateToData(day)}
+          marking={this.getDateMarking(day)}
         >
-          {day.getDate()}
+          {date}
         </DayComp>
       );
     }
@@ -170,8 +174,12 @@ class Calendar extends Component {
   }
 
   getDayComponent() {
+    if (this.props.dayComponent) {
+      return this.props.dayComponent;
+    }
+
     switch (this.props.markingType) {
-    case 'interactive':
+    case 'period':
       return UnitDay;
     case 'multi-dot':
       return MultiDotDay;
