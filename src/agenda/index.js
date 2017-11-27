@@ -137,7 +137,7 @@ export default class AgendaView extends Component {
     if(Platform.OS === 'ios'){
       setTimeout(()=>{
         this.forceUpdate();
-      }, 200)
+      }, 200);
     } else {
       this.forceUpdate();
     }
@@ -187,7 +187,7 @@ export default class AgendaView extends Component {
         });
         this.calendar.scrollToDay(day, this.calendarOffset(), true);
 
-      },Platform.OS === 'ios' ? 0 : 200)
+      }, Platform.OS === 'ios' ? 0 : 200);
     }
   }
 
@@ -233,7 +233,7 @@ export default class AgendaView extends Component {
           selectedDay: parseDate(props.selected) || XDate(true),
           topDay: parseDate(props.selected) || XDate(true),
         });
-        this._chooseDayFromCalendar(parseDate(props.selected)|| XDate(true))
+        this._chooseDayFromCalendar(parseDate(props.selected)|| XDate(true));
       }
     } else {
       this.loadReservations(props);
