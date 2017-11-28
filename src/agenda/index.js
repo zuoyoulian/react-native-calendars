@@ -133,14 +133,8 @@ export default class AgendaView extends Component {
   onLayout(event) {
     this.viewHeight = event.nativeEvent.layout.height;
     this.viewWidth = event.nativeEvent.layout.width;
-    this.calendar.scrollToDay(this.state.selectedDay.clone(), this.calendarOffset(), true);
-    if(Platform.OS === 'ios'){
-      setTimeout(()=>{
-        this.forceUpdate();
-      }, 300);
-    } else {
-      this.forceUpdate();
-    }
+    this.calendar.scrollToDay(this.state.selectedDay.clone(), this.calendarOffset(), false);
+    this.forceUpdate();
   }
 
   onTouchStart() {
@@ -398,7 +392,7 @@ export default class AgendaView extends Component {
     }
 
     return (
-      <View onLayout={this.onLayout} style={[this.props.style, {flex: 1, overflow: 'hidden'}]}>
+      <View onLayout={this.onLayout} style={[this.props.style, { overflow: 'hidden'}]}>
         <View style={this.styles.reservations}>
           {this.renderReservations()}
         </View>
